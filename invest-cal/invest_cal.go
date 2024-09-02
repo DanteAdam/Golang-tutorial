@@ -25,7 +25,7 @@ func main() {
 
 	// outputs information
 	// fmt.Println("Future Value:", futureValue)
-	fmt.Printf("Future Value: %v\nFuture Value: %v\n", futureValue, futureRevalue)
+	fmt.Printf("Future Value: %.2f\nFuture Value: %.2f\n", futureValue, futureRevalue)
 	// fmt.Println("Future Revalue:", futureRevalue)
 
 }
