@@ -9,49 +9,106 @@ import (
 	"strings"
 )
 
+type saver interface {
+	Save() error
+}
+
+// type displayer interface {
+// 	Display()
+// }
+
+type outputtable interface {
+	saver
+	Display()
+}
+
+// type outputable interface {
+// 	Save() error
+// 	Display()
+// }
+
 func main() {
+	printSomeThing(1)
+	printSomeThing(2.5)
+	printSomeThing("Hello")
+
 	title, content := getNoteData()
 	todoText := getUserInput("Todo text: ")
 
 	todo, err := todo.New(todoText)
-
-	if err != nil{
-		fmt.Println(err)
-		return 
-	}
-
-	todo.Display()
-	err = todo.Save()
 	if err != nil {
-		fmt.Println("Saving the todo failed")
+		fmt.Println(err)
 		return
 	}
-	fmt.Println("Saving the todo succeeded.")
 
 	userNote, err := note.New(title, content)
-
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	userNote.Display()
-	err = userNote.Save()
+
+	err = outputData(todo)
+
+	if err != nil {
+		return
+	}
+
+	outputData(userNote)
+}
+
+func printSomeThing(value any) {
+	intVal, ok := value.(int)
+
+	if ok {
+		fmt.Println("Integer:", intVal)
+		return
+	}
+
+	stringVal, ok := value.(string)
+
+	if ok {
+		fmt.Println("String:", stringVal)
+	}
+
+	floatVal, ok := value.(float64)
+	if ok {
+		fmt.Println("Float:", floatVal)
+	}
+
+	// switch value.(type) {
+	// case int:
+	// 	fmt.Println("Integer:", value)
+	// case float64:
+	// 	fmt.Println("Float:", value)
+	// case string:
+	// 	fmt.Println("Srting:", value)
+	// }
+}
+
+func outputData(data outputtable) error {
+	data.Display()
+	return saveData(data)
+}
+
+func saveData(data saver) error {
+	err := data.Save()
 
 	if err != nil {
 		fmt.Println("Saving the note failed")
-		return
+		return err
 	}
 	fmt.Println("Saving the note succeeded.")
-}
+	return nil
 
+}
 
 func getNoteData() (string, string) {
 	title := getUserInput("Note title:")
 	content := getUserInput("Note content: ")
 
 	return title, content
-
 }
+
 func getUserInput(prompt string) string {
 	fmt.Printf("%v ", prompt)
 	reader := bufio.NewReader(os.Stdin)
@@ -60,7 +117,6 @@ func getUserInput(prompt string) string {
 	if err != nil {
 		return ""
 	}
-
 	text = strings.TrimSuffix(text, "\n")
 	text = strings.TrimSuffix(text, "\r")
 
